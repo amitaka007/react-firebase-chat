@@ -1,7 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-image: url("/bg.jpg");
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: white;
+}
+.container {
+  width: 90vw;
+  height: 90vh;
+  background-color: rgba(17, 25, 40, 0.75);
+  backdrop-filter: blur(19px) saturate(180%);
+  border-radius: 12px;
+  display: flex;
+}
+.chat {
+  flex: 2;
+  border-left: 1 px solid #dddddd35;
+  border-right: 1 px solid #dddddd35;
+  height: 100%;
+  display: flex; 
+  flex-direction: column;
+}
+.detail {
+  flex: 1;
+}
+.list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatList {
+  flex: 1;
+  overflow-y: scroll;
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  justify-content: space-between;
+}
+
+.add {
+  background-color: rgba(17, 25, 40, 0.75);
+  border-radius: 10px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  padding: 0px;
 }
