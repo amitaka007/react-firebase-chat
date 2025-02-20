@@ -1,10 +1,17 @@
-import  EmojiPicker from "emoji-picker-react";
-import React, { useState } from "react";
+import EmojiPicker from "emoji-picker-react";
+import React, { useEffect, useState } from "react";
 import { messages } from "../../data/data";
 
 const Chat = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
+  const endRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      endRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
 
   const handleEmoji = (e: { emoji: string }) => {
@@ -78,14 +85,8 @@ const Chat = () => {
             </div>
           </div>
         ))}
+        <div ref={endRef}></div>
       </div>
-
-
-
-
-
-
-
 
 
       <div className="bottom p-5 gap-5 flex items-center justify-between border-t border-[#dddddd35]">

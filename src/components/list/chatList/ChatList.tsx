@@ -1,13 +1,14 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import chatList from "../../../data/data";
+import AddUser from "./AddUser/AddUser";
 
- 
+
 
 const ChatList = () => {
   const [addMode, setAddMode] = useState<boolean>(false);
 
   return (
-    <div className="chatList">
+    <div className="chatList ">
       <div className="search">
         <div className="flex justify-center sm:justify-start">
           <input
@@ -41,6 +42,10 @@ const ChatList = () => {
           </div>
         </div>
       ))}
+      {addMode ? (
+        <AddUser />
+      ) : ''}
+
     </div>
   );
 };

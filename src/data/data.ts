@@ -47,7 +47,14 @@ const chatList: {
 
 export default chatList;
 
-const messages = [
+const messages: {
+  img?: string;
+  botMessage?: string;
+  time: string;
+  class?: string;
+  userMessage?: string;
+  imageMessage?: boolean;
+}[] = [
   {
     img: "/avatar.png",
     botMessage:
@@ -95,3 +102,43 @@ const messages = [
 ];
 
 export { messages };
+
+type Detail = {
+  title: string;
+  img: string;
+  subItems?: { name: string; img: string; download: string }[]; // Optional sub-items
+};
+
+const details: Detail[] = [
+  { title: "Chat Setting", img: "/arrowUp.png" },
+  { title: "Privacy & Help", img: "/arrowUp.png" },
+  {
+    title: "Shared Photos",
+    img: "/arrowUp.png",
+    subItems: [
+      {
+        name: "photo_2024_1.png",
+        img: "/avatar.png",
+        download: "/download.png",
+      },
+      {
+        name: "photo_2024_2.png",
+        img: "/avatar.png",
+        download: "/download.png",
+      },
+      {
+        name: "photo_2024_3.png",
+        img: "/avatar.png",
+        download: "/download.png",
+      },
+      {
+        name: "photo_2024_4.png",
+        img: "/avatar.png",
+        download: "/download.png",
+      },
+    ],
+  },
+  { title: "Shared Files", img: "/arrowUp.png" },
+];
+
+export { details };
