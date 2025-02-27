@@ -1,9 +1,22 @@
 import EmojiPicker from "emoji-picker-react";
 import React, { useEffect, useState } from "react";
 import { messages } from "../../data/data";
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../lib/firebase";
+import { useChatStore } from "../../store/useChatStore";
+import { useUserStore } from "../../store/store";
 
-const Chat = () => {
+
+// Define the expected chat data type (adjust according to your actual data structure)
+interface ChatData {
+  messages?: any[]; // Replace 'any' with your actual message type
+  [key: string]: any; // For other potential properties
+}const Chat = () => {
+  const { chatId, user }: any = useChatStore()
+  const { currentUser } = useUserStore()
+
   const [open, setOpen] = useState<boolean>(false);
+  const [chats, setChats] = useState<ChatData | null>(null);
   const [text, setText] = useState<string>("");
   const endRef = React.useRef<HTMLDivElement>(null);
 
@@ -13,11 +26,77 @@ const Chat = () => {
     }
   }, [messages]);
 
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
+      // Check if document exists and handle the data
+      if (res.exists()) {
+        setChats(res.data() as ChatData);
+      } else {
+        // Handle case where document doesn't exist
+        setChats(null);
+      }
+    })
+
+    return () => {
+      unSub()
+    }
+  }, [chatId])
+
+  console.log(chats, "chatfile")
+
 
   const handleEmoji = (e: { emoji: string }) => {
     setText((prev) => prev + e.emoji);
     setOpen(false);
   };
+
+  const handleSend = async () => {
+    if (text.trim() === "") {
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "chats", chatId), {
+        messages: arrayUnion({
+          senderId: currentUser.id,
+          text,
+          createdAt: new Date()
+        })
+      })
+
+      const userIDs = [currentUser.id, user.id]
+
+      userIDs.forEach(async (id) => {
+        const userChatsRef = doc(db, "userChats", id)
+        const userChatsSnapshot = await getDoc(userChatsRef)
+
+        if (userChatsSnapshot.exists()) {
+          const userchatsData = userChatsSnapshot.data();
+          const chatIndex: number = userchatsData.chats.findIndex((c: any) => c.chatId === chatId);
+
+          userchatsData[chatIndex].lastMessage = text;
+          userchatsData[chatIndex].isSeen = id === currentUser.id ? true : false;
+          userchatsData[chatIndex].updatedAt = Date.now()
+
+
+          await updateDoc(userChatsRef, {
+            chats: userchatsData.chats,
+            lastMessage: text,
+            isSeen: true,
+            updatedAt: Date.now()
+          })
+        }
+      })
+
+    } catch (err) {
+      console.error("Error sending message:", err);
+    }
+
+    // Scroll to the bottom of the chat
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  console.log(chats, "=========>>>>>")
 
   return (
     <div className="chat">
@@ -51,12 +130,12 @@ const Chat = () => {
       </div>
 
       <div className="center p-5 flex-1 flex flex-col gap-5 overflow-y-scroll">
-        {messages.map((msg, index) => (
+        {/* {messages.map((msg, index) => (
           <div
             key={index}
             className={`messages max-w-[70%] flex gap-5 ${msg.class || ""}`}
           >
-            {/* Display bot avatar if botMessage exists */}
+            Display bot avatar if botMessage exists
             {msg.img && msg.botMessage && (
               <img
                 src={msg.img}
@@ -66,7 +145,7 @@ const Chat = () => {
             )}
 
             <div className="texts flex-1 flex flex-col gap-5">
-              {/* Image Message */}
+              Image Message
               {msg.imageMessage ? (
                 <img
                   src={msg.img}
@@ -84,6 +163,30 @@ const Chat = () => {
               <span className="text-sm">{msg.time}</span>
             </div>
           </div>
+        ))} */}
+
+
+        {chats?.messages?.map((message, index) => (
+          <div
+            key={index}
+            className={`message max-w-[70%] flex gap-5 ${message.class || ""}`}
+          >
+            
+            <div className="texts flex-1 flex flex-col gap-5 ">
+              <p
+                className={`p-5 rounded-[10px] ${message.senderId === "VHBsAfbX7yWncHsE8W7he8DzDtx2"
+                    ? "bg-[#5183fe] text-white"
+                    : "bg-[#11192880]"
+                  }`}
+              >
+                {message.text}
+              </p>
+              {/* Convert timestamp to readable format */}
+              <span className="text-sm">
+                {new Date(message.createdAt.seconds * 1000).toLocaleTimeString()}
+              </span>
+            </div>
+           </div>
         ))}
         <div ref={endRef}></div>
       </div>
@@ -121,7 +224,7 @@ const Chat = () => {
             <EmojiPicker open={open} onEmojiClick={handleEmoji} />
           </div>
         </div>
-        <button className="sendButton bg-[#5183fe] text-white px-5 py-[10px] border-none rounded-[5px] cursor-pointer">
+        <button className="sendButton bg-[#5183fe] text-white px-5 py-[10px] border-none rounded-[5px] cursor-pointer" onClick={handleSend}>
           {" "}
           Send
         </button>

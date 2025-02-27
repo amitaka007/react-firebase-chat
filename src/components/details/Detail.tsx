@@ -1,5 +1,6 @@
 import React from 'react'
 import { details } from '../../data/data'
+import { auth } from '../../lib/firebase'
 
 const Detail = () => {
   return (
@@ -10,8 +11,7 @@ const Detail = () => {
         <p>lorem ipusm dolar sit</p>
       </div>
       <div className='info p-5 flex flex-col gap-2   '>
-        {details.map((detail, index) => (
-          console.log(detail),
+        {details.map((detail, index) => ( 
           <div key={index} className="option">
             <div className="title flex items-center justify-between">
               <span>{detail.title}</span>
@@ -45,7 +45,7 @@ const Detail = () => {
           </div>
         ))}
         <button className='px-5 py-[10px] text-white border-none rounded cursor-pointer bg-[#e64a698d] hover:bg-[#dc143cc2]'>Block User</button>
-        <button className='px-5 py-[10px] text-white border-none rounded cursor-pointer bg-[#1a73e8] hover:bg-[#3d8ffb]'>Logout  </button>
+        <button className='px-5 py-[10px] text-white border-none rounded cursor-pointer bg-[#1a73e8] hover:bg-[#3d8ffb]' onClick={()=> auth.signOut()}>Logout  </button>
       </div>
     </div>
   )
